@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.johnny.dao.StudentDao">
+
+    <cache/>
+
+    <resultMap id="studentMap" type="com.johnny.pojo.Student">
+        <id property="id" column="id"/>
+        <result property="cnName" column="cnname"/>
+        <result property="selfCardNo" column="selfcard_no"/>
+        <result property="note" column="note"/>
+        <result property="sex" column="sex" jdbcType="INTEGER" javaType="com.johnny.pojo.SexEnum"
+                typeHandler="com.johnny.pojo.SexTypeHandler"/>
+        <association property="studentSelfcard" column="id" fetchType="lazy"
+                     select="com.johnny.dao.StudentSelfcardDao.findStudentSelfcardByStudentId"/>
+        <collection property="studentLectureList" column="id" fetchType="lazy"
+                    select="com.johnny.dao.StudentLectureDao.findStudentLectureByStudentId"/>
+        <discriminator javaType="int" column="sex">
+            <case value="1" resultMap="maleStudentMap"/>
+            <case value="2" resultMap="femaleStudentMap"/>
+        </discriminator>
+    </resultMap>
+
+    <select id="getStudent" parameterType="int" resultMap="studentMap">
+        SELECT
+        id,
+        cnname,
+        sex,
+        note,
+        selfcard_no
+        FROM t_student
+        WHERE id = #{id}
+    </select>
+
+    <resultMap id="maleStudentMap" type="com.johnny.pojo.MaleStudent" extends="studentMap">
+        <collection property="studentHealthMaleList" fetchType="lazy"
+                    select="com.johnny.dao.StudentHealthMaleDao.findStudentHealthMaleByStudentId" column="id"/>
+    </resultMap>
+
+    <resultMap id="femaleStudentMap" type="com.johnny.pojo.FemaleStudent" extends="studentMap">
+        <collection property="studentHealthFemaleList" fetchType="lazy"
+                    select="com.johnny.dao.StudentHealthFemaleDao.findStudentHealthFemaleByStudentId" column="id"/>
+    </resultMap>
+
+
+    <resultMap id="maleStudentMap2" type="com.johnny.pojo.MaleStudent" extends="studentMap2">
+        <collection property="studentHealthMaleList"
+                    ofType="com.johnny.pojo.StudentHealthMale">
+            <id property="id" column="hid" javaType="int"/>
+            <result property="checkDate" column="check_date"/>
+            <result property="heart" column="heart"/>
+            <result property="liver" column="liver"/>
+            <result property="spleen" column="spleen"/>
+            <result property="lung" column="lung"/>
+            <result property="kidney" column="kidney"/>
+            <result property="prostate" column="prostate"/>
+            <result property="note" column="shnote"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="femaleStudentMap2" type="com.johnny.pojo.FemaleStudent" extends="studentMap2">
+        <collection property="studentHealthFemaleList" ofType="com.johnny.pojo.StudentHealthFemale">
+            <id property="id" column="hid" javaType="int"/>
+            <result property="checkDate" column="check_date"/>
+            <result property="heart" column="heart"/>
+            <result property="liver" column="liver"/>
+            <result property="spleen" column="spleen"/>
+            <result property="lung" column="lung"/>
+            <result property="kidney" column="kidney"/>
+            <result property="uterus" column="uterus"/>
+            <result property="note" column="shnote"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="studentMap2" type="com.johnny.pojo.Student">
+        <id property="id" column="id"/>
+        <result property="cnName" column="cnname"/>
+        <result property="selfCardNo" column="selfcard_no"/>
+        <result property="note" column="note"/>
+        <association property="studentSelfcard" column="id"
+                     javaType="com.johnny.pojo.StudentSelfCard">
+            <result property="id" column="ssid"/>
+            <result property="studentId" column="student_id"/>
+            <result property="nativeStr" column="native"/>
+            <result property="issueDate" column="issue_date"/>
+            <result property="endDate" column="end_date"/>
+            <result property="note" column="ssnote"/>
+        </association>
+        <collection property="studentLectureList" ofType="com.johnny.pojo.StudentLecture">
+            <result property="id" column="slid"/>
+            <result property="studentId" column="id"/>
+            <result property="grade" column="grade"/>
+            <result property="note" column="slnote"/>
+            <association property="lecture" column="id"
+                         javaType="com.johnny.pojo.Lecture">
+                <result property="id" column="lecture_id"/>
+                <result property="lectureName" column="lecture_name"/>
+                <result property="note" column="lnote"/>
+            </association>
+        </collection>
+        <discriminator javaType="int" column="sex">
+            <case value="1" resultMap="maleStudentMap"/>
+            <case value="2" resultMap="femaleStudentMap"/>
+        </discriminator>
+
+
+    </resultMap>
+
+    <select id="findAllStudent" resultMap="studentMap2">
+        SELECT
+        s.id,
+        s.cnname,
+        s.sex,
+        s.note,
+        s.selfcard_no,
+        if(sex = 1, shm.id, shf.id) AS hid,
+        if(sex = 1, shm.check_date, shf.check_date) AS check_date,
+        if(sex = 1, shm.heart, shf.heart) AS heart,
+        if(sex = 1, shm.liver, shf.liver) AS liver,
+        if(sex = 1, shm.spleen, shf.spleen) AS spleen,
+        if(sex = 1, shm.lung, shf.lung) AS lung,
+        if(sex = 1, shm.kidney, shf.kidney) AS kidney,
+        if(sex = 1, shm.note, shf.note) AS shnote,
+        shm.prostate,
+        shf.uterus,
+        ss.id AS ssid,
+        ss.native AS native_,
+        ss.issue_date,
+        ss.end_date,
+        ss.note AS ssnote,
+        sl.id AS slid,
+        sl.lecture_id,
+        sl.grade,
+        sl.note AS slnote,
+        l.lecture_name,
+        l.note AS lnote
+        FROM t_student s
+        LEFT JOIN t_student_health_male shm ON s.id = shm.student_id
+        LEFT JOIN t_student_health_female shf ON s.id = shf.student_id
+        LEFT JOIN t_student_selfcard ss ON s.id = ss.student_id
+        LEFT JOIN t_student_lecture sl ON s.id = sl.student_id
+        LEFT JOIN t_lecture l ON sl.lecture_id = l.id
+
+    </select>
+</mapper>

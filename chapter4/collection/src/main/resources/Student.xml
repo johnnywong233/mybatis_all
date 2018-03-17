@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.johnny.dao.StudentDao">
+    <resultMap id="studentMap" type="com.johnny.pojo.Student">
+        <id property="id" column="id"/>
+        <result property="cnName" column="cnname"/>
+        <result property="selfCardNo" column="selfcard_no"/>
+        <result property="note" column="note"/>
+        <result property="sex" column="sex" jdbcType="INTEGER" javaType="com.johnny.pojo.SexEnum"
+                typeHandler="com.johnny.pojo.SexTypeHandler"/>
+        <association property="studentSelfcard" column="id"
+                     select="com.johnny.dao.StudentSelfcardDao.findStudentSelfcardByStudentId"/>
+        <collection property="studentLectureList" column="id"
+                    select="com.johnny.dao.StudentLectureDao.findStudentLectureByStudentId"/>
+    </resultMap>
+    <select id="getStudent" parameterType="int" resultMap="studentMap">
+        select id,cnname,sex,note,selfcard_no from t_student where id=#{id}
+    </select>
+
+</mapper>

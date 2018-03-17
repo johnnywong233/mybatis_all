@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.johnny.dao.RoleDao">
+
+    <!-- 使用Map存储结果集 -->
+    <select id="findRoleByNote" parameterType="int" resultType="map">
+        select id,role_name,note from t_role where id=#{id}
+    </select>
+
+    <resultMap id="roleMap" type="com.johnny.pojo.Role">
+        <id property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <!-- 使用POJO存储结果集 -->
+    <select parameterType="int" id="getRole" resultMap="roleMap">
+        select id,role_name,note from t_role where id=#{id}
+    </select>
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.johnny.dao.RoleDao">
+
+    <resultMap id="roleMap" type="com.johnny.pojo.Role">
+        <id property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <sql id="role_columns">
+        id,role_name,note
+    </sql>
+
+    <select id="getRole" parameterType="int" resultMap="roleMap">
+        select
+        <include refid="role_columns"/>
+        from t_role where id=#{id}
+    </select>
+
+    <select parameterType="map" id="findRoles" resultMap="roleMap">
+        select id,role_name,note from t_role
+        where role_name like concat('%',#{roleName},'%')
+        and note like concat('%',#{note},'%')
+    </select>
+
+    <sql id="role_custom_columns">
+        #{prefix}.id,#{prefix}.role_name,#{prefix}.note
+    </sql>
+
+    <resultMap id="roleMapCustom" type="com.johnny.pojo.Role">
+        <id property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <select id="getRoleCustom" parameterType="int" resultMap="roleMapCustom">
+        select
+        <include refid="role_columns">
+            <property name="prefix" value="r"/>
+        </include>
+        from t_role where id=#{id}
+    </select>
+
+
+</mapper>

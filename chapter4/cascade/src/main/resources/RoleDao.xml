@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.johnny.dao.RoleDao">
+    <!-- 使用POJO存储结果集 -->
+    <select parameterType="int" id="getRole" resultType="com.johnny.pojo.Role">
+        select r.id,r.role_name as roleName,r.note,u.id as userId,u.user_name as userName,u.cnname as cnName,u.sex as
+        sex,
+        u.mobile as mobile,u.email as email,u.note as userNote
+        from t_role r inner join t_user_role ur on r.id=ur.role_id
+        inner join t_user u on ur.user_id=u.id
+        where r.id=#{id}
+    </select>
+</mapper>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.johnny.dao.UserDao">
+    <select id="countFirstName" parameterType="string" resultType="int">
+        select count(*) as total from t_user where user_name like concat(#{firstName},'%')
+    </select>
+</mapper>
